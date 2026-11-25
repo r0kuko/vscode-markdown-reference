@@ -204,13 +204,18 @@ export function resolveReference(
     return undefined;
 }
 
-export function referenceHref(reference: ResolvedReference, currentDocumentPath: string): string {
+export function referenceHref(
+    reference: ResolvedReference,
+    currentDocumentPath: string,
+    uriScheme = 'vscode'
+): string {
     if (reference.symbol) {
         const query = new URLSearchParams({
             file: reference.absolutePath,
             symbol: reference.symbol,
         });
-        return `vscode://r0kuko.vscode-markdown-reference/open-symbol?${query.toString()}`;
+        const scheme = uriScheme.trim() || 'vscode';
+        return `${scheme}://r0kuko.vscode-markdown-reference/open-symbol?${query.toString()}`;
     }
     const relativePath = path.relative(path.dirname(currentDocumentPath), reference.absolutePath);
     const encodedPath = relativePath

@@ -26,6 +26,7 @@ interface PreviewLineRange {
 }
 
 export interface MarkdownReferencePluginOptions {
+    uriScheme?: string;
     workspaceRootForDocument?: (documentPath: string) => string | undefined;
     fontSizeForDocument?: (documentPath: string) => number | undefined;
     tabSizeForFile?: (filePath: string) => number | undefined;
@@ -319,7 +320,7 @@ function renderLink(
     const displayPath = markdown.utils.escapeHtml(
         reference.symbol ? reference.filePath.split(/[\\/]/).at(-1) ?? reference.filePath : reference.filePath
     );
-    const href = markdown.utils.escapeHtml(referenceHref(reference, documentPath));
+    const href = markdown.utils.escapeHtml(referenceHref(reference, documentPath, pluginOptions.uriScheme));
     const title = markdown.utils.escapeHtml(reference.absolutePath);
     const configuredFontSize = pluginOptions.fontSizeForDocument?.(documentPath);
     const fontSize = typeof configuredFontSize === 'number' && configuredFontSize >= 8 && configuredFontSize <= 32
@@ -520,7 +521,7 @@ function renderPreviewLink(
     markdown: MarkdownIt,
     pluginOptions: MarkdownReferencePluginOptions
 ): string {
-    const href = markdown.utils.escapeHtml(referenceHref(reference, documentPath));
+    const href = markdown.utils.escapeHtml(referenceHref(reference, documentPath, pluginOptions.uriScheme));
     const title = markdown.utils.escapeHtml(reference.absolutePath);
     const fileName = markdown.utils.escapeHtml(reference.filePath.split(/[\\/]/).at(-1) ?? reference.filePath);
     const symbol = reference.symbol ? `#${markdown.utils.escapeHtml(reference.symbol)}` : '';

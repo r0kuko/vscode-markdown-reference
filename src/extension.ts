@@ -30,6 +30,7 @@ export function activate(context: vscode.ExtensionContext): MarkdownItExtension 
     return {
         extendMarkdownIt(markdown: MarkdownIt): MarkdownIt {
             return installMarkdownReferencePlugin(markdown, {
+                uriScheme: vscode.env.uriScheme,
                 workspaceRootForDocument(documentPath) {
                     return vscode.workspace.getWorkspaceFolder(vscode.Uri.file(documentPath))?.uri.fsPath;
                 },

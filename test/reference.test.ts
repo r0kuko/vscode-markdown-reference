@@ -259,6 +259,29 @@ describe('reference resolution and rendering', () => {
         expect(html).not.toContain('md-ref__theme-icon');
     });
 
+    it('uses the configured host URI scheme for symbol links and preview headers', () => {
+        const parsed = parseReference('src/example.ts#add')!;
+        const resolved = resolveReference(parsed, markdownPath, root)!;
+        expect(referenceHref(resolved, markdownPath, 'antigravity-ide')).toMatch(
+            /^antigravity-ide:\/\/r0kuko\.vscode-markdown-reference\/open-symbol\?/
+        );
+        expect(referenceHref(resolved, markdownPath, '  ')).toMatch(
+            /^vscode:\/\/r0kuko\.vscode-markdown-reference\/open-symbol\?/
+        );
+
+        const markdown = installMarkdownReferencePlugin(new MarkdownIt(), {
+            workspaceRootForDocument: () => root,
+            uriScheme: 'vscode-insiders',
+            symbolRangeForReference: () => ({ startLine: 2, endLine: 4 }),
+        });
+        const env = { currentDocument: { scheme: 'file', fsPath: markdownPath } };
+        const linkHtml = markdown.render('`src/example.ts#add`', env);
+        const previewHtml = markdown.render('`src/example.ts#add?preview=true`', env);
+
+        expect(linkHtml).toContain('href="vscode-insiders://r0kuko.vscode-markdown-reference/open-symbol?');
+        expect(previewHtml).toContain('href="vscode-insiders://r0kuko.vscode-markdown-reference/open-symbol?');
+    });
+
     it('renders an icon from the active file icon theme instead of a Codicon fallback', () => {
         const iconData = 'data:image/svg+xml;base64,PHN2Zy8+';
         const markdown = installMarkdownReferencePlugin(new MarkdownIt(), {
